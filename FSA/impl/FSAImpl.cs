@@ -38,7 +38,7 @@ namespace KAI.FSA
 			return null;
 		}
 			
-		public State MakeNewState(string name=null){
+		public virtual State MakeNewState(string name=null){
 			return MakeNewState<StateImpl> (name);
 		}
 

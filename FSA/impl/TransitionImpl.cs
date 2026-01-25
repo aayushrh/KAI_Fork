@@ -11,11 +11,11 @@ namespace KAI.FSA
 	/// </summary>
 	public class TransitionImpl : Transition
 	{
-		private ConditionDelegate[] conditions;
-		private ActionDelegate[] actions;
+		protected ConditionDelegate[] conditions;
+		protected ActionDelegate[] actions;
 		protected State newState;
-		private String evt;
-		private String postEvent = null;
+		protected String evt;
+		protected String postEvent = null;
 		
 		public TransitionImpl (String evt, ConditionDelegate[] conditions,
 		                       ActionDelegate[] actions, State newState, String postEvent=null)
@@ -56,6 +56,8 @@ namespace KAI.FSA
 				fsa.DoEvent(postEvent);	
 			}
 		}
+		
+		
 		
 		
 	}

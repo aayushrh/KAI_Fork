@@ -14,7 +14,7 @@ namespace KAI.FSA
 		/// <summary>
 		/// This holds the states list of transition in evaluation order
 		/// </summary>
-		private  List<Transition> transitionList = new List<Transition>();
+		protected List<Transition> transitionList = new List<Transition>();
 		/// <summary>
 		/// This is an accessor that allows the transitionList to be acessed as a psuedo variable
 		/// StateImpl.transitions
@@ -34,7 +34,7 @@ namespace KAI.FSA
 		}
 		
 		/// This method adds a new atrsnitio nto the end of the transition list
-		public Transition addTransition(String evt, ConditionDelegate[] conditions, ActionDelegate[] actions,State nextState, 
+		public virtual Transition addTransition(String evt, ConditionDelegate[] conditions, ActionDelegate[] actions,State nextState, 
 			String postEvent=null){
 			Console.WriteLine ("Make transition");
 			Transition t = new TransitionImpl(evt,conditions,actions,nextState, postEvent);	
