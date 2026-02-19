@@ -6,7 +6,7 @@ namespace Miner49er
     /// <summary>
     /// This class implements the Miner as described by the first state transition table
     /// </summary>
-    public class SimpleMiner : FSAImpl, Miner
+    public class OptimizedMiner : FSAImpl, Miner
     {
         private const int POCKET_SIZE = 5;
         private const int MAX_THIRST = 15;
@@ -24,7 +24,7 @@ namespace Miner49er
         State bankingState;
 
         // FIXED: Added : base("SimpleMiner") to resolve the FSAImpl constructor error
-        public SimpleMiner() : base("SimpleMiner")
+        public OptimizedMiner() : base("SimpleMiner")
         {
             // FIXED: Using PascalCase to match your FSAImpl.MakeNewState method
             miningState = MakeNewState("Mining");
@@ -32,9 +32,9 @@ namespace Miner49er
             bankingState = MakeNewState("Banking");
 
             // set mining transitions
-            miningState.addTransition("tick",
+            /*miningState.addTransition("tick",
                 new ConditionDelegate[] { new ConditionDelegate(this.parched) },
-                new ActionDelegate[] { }, drinkingState);
+                new ActionDelegate[] { }, drinkingState);*/
             
             miningState.addTransition("tick",
                 new ConditionDelegate[] { new ConditionDelegate(this.pocketsFull) },
@@ -46,7 +46,7 @@ namespace Miner49er
 
             // set drinking transitions
             drinkingState.addTransition("tick",
-                new ConditionDelegate[] { new ConditionDelegate(this.thirsty) },
+                new ConditionDelegate[] { new ConditionDelegate(this.isThirsty) },
                 new ActionDelegate[] { new ActionDelegate(this.takeDrink) }, drinkingState);
             
             drinkingState.addTransition("tick",
@@ -59,7 +59,7 @@ namespace Miner49er
                 new ActionDelegate[] { new ActionDelegate(this.depositGold) }, bankingState);
 
             bankingState.addTransition("tick",
-                new ConditionDelegate[] { new ConditionDelegate(this.parched) },
+                new ConditionDelegate[] { new ConditionDelegate(this.isThirsty) },
                 new ActionDelegate[] {  }, drinkingState);
             
             bankingState.addTransition("tick",

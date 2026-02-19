@@ -6,7 +6,7 @@ namespace Miner49er
     /// <summary>
     /// This class implements the Miner as described by the first state transition table
     /// </summary>
-    public class SimpleMiner : FSAImpl, Miner
+    public class GamblingMiner : FSAImpl, Miner
     {
         private const int POCKET_SIZE = 5;
         private const int MAX_THIRST = 15;
@@ -22,23 +22,25 @@ namespace Miner49er
         State miningState;
         State drinkingState;
         State bankingState;
+        State gamblingState;
 
         // FIXED: Added : base("SimpleMiner") to resolve the FSAImpl constructor error
-        public SimpleMiner() : base("SimpleMiner")
+        public GamblingMiner() : base("SimpleMiner")
         {
             // FIXED: Using PascalCase to match your FSAImpl.MakeNewState method
             miningState = MakeNewState("Mining");
             drinkingState = MakeNewState("Drinking");
             bankingState = MakeNewState("Banking");
+            gamblingState = MakeNewState("Blackjack");
 
             // set mining transitions
-            miningState.addTransition("tick",
+            /*miningState.addTransition("tick",
                 new ConditionDelegate[] { new ConditionDelegate(this.parched) },
-                new ActionDelegate[] { }, drinkingState);
+                new ActionDelegate[] { }, drinkingState);*/
             
             miningState.addTransition("tick",
                 new ConditionDelegate[] { new ConditionDelegate(this.pocketsFull) },
-                new ActionDelegate[] { new ActionDelegate(this.incrementThirst) }, bankingState);
+                new ActionDelegate[] { new ActionDelegate(this.incrementThirst) }, gamblingState);
             
             miningState.addTransition("tick",
                 new ConditionDelegate[] { }, 
@@ -46,12 +48,34 @@ namespace Miner49er
 
             // set drinking transitions
             drinkingState.addTransition("tick",
-                new ConditionDelegate[] { new ConditionDelegate(this.thirsty) },
+                new ConditionDelegate[] { new ConditionDelegate(this.isThirsty) },
                 new ActionDelegate[] { new ActionDelegate(this.takeDrink) }, drinkingState);
+
+            drinkingState.addTransition("tick",
+                new ConditionDelegate[] { new ConditionDelegate(this.canGamble), new ConditionDelegate(this.feelLikeGambling) },
+                new ActionDelegate[] { }, gamblingState);
             
             drinkingState.addTransition("tick",
                 new ConditionDelegate[] { },
                 new ActionDelegate[] { new ActionDelegate(this.incrementThirst) }, miningState);
+            
+            //set gambling transitions
+            gamblingState.addTransition("tick",
+                new ConditionDelegate[] { new ConditionDelegate(this.feelLikeGambling), new ConditionDelegate(this.pocketsNotEmpty) },
+                new ActionDelegate[] { new ActionDelegate(this.incrementThirst), new ActionDelegate(this.gamble) }, gamblingState);
+            
+            gamblingState.addTransition("tick",
+                new ConditionDelegate[] { new ConditionDelegate(this.pocketsNotEmpty) },
+                new ActionDelegate[] { new ActionDelegate(this.incrementThirst) }, bankingState);
+            
+            gamblingState.addTransition("tick",
+                new ConditionDelegate[] { new ConditionDelegate(this.isThirsty) },
+                new ActionDelegate[] { }, drinkingState);
+            
+            gamblingState.addTransition("tick",
+                new ConditionDelegate[] { },
+                new ActionDelegate[] { new ActionDelegate(this.incrementThirst) }, miningState);
+
 
             // set banking transitions
             bankingState.addTransition("tick",
@@ -59,7 +83,7 @@ namespace Miner49er
                 new ActionDelegate[] { new ActionDelegate(this.depositGold) }, bankingState);
 
             bankingState.addTransition("tick",
-                new ConditionDelegate[] { new ConditionDelegate(this.parched) },
+                new ConditionDelegate[] { new ConditionDelegate(this.isThirsty) },
                 new ActionDelegate[] {  }, drinkingState);
             
             bankingState.addTransition("tick",
@@ -124,6 +148,19 @@ namespace Miner49er
             gold++;
             Console.WriteLine("Miner is digging.");
         }
+        
+        private void gamble(FSA fsa)
+        {
+            gold--;
+            Random random = new Random();
+            if (random.NextSingle() < 0.5)
+            {
+                Console.WriteLine("Miner won gambling.");
+                gold += 4;
+                return;
+            }
+            Console.WriteLine("Miner lost gambling.");
+        }
 
         private void incrementThirst(FSA fsa)
         {
@@ -135,6 +172,19 @@ namespace Miner49er
         private Boolean pocketsNotEmpty(FSA fsa) => gold > 0;
 
         private Boolean thirsty(FSA fsa) => thirst > 0;
+
+        private Boolean canGamble(FSA fsa) => bank > 10;
+
+        private Boolean feelLikeGambling(FSA fsa)
+        {
+            Random random = new Random();
+            if (random.NextSingle() < 0.9)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         public void printStatus()
         {

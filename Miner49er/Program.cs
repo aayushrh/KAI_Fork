@@ -6,19 +6,19 @@ namespace Miner49er
     {
         public static void Main(string[] args) {
             //Set up the variables 
-            Miner miner = new SimpleMiner();
+            Miner miner = new OptimizedMiner();
             int secsPerTick = 1;
             Random myRandom = new Random(Environment.TickCount);
-            int gameLengthInTics = (int)(myRandom.NextSingle() * 10) + 10;
+            int gameLengthInTics = 200;//(int)(myRandom.NextSingle() * 200) + 100;
             // run the mineM9er• loop 
             for (int tick = 0; tick < gameLengthInTics; tick++)
             {
-                Console.WriteLine("Tick # " + tick);
                 miner.DoEvent("tick");
+                /*Console.WriteLine("Tick # " + tick);
                 miner.printStatus();
                 Console.WriteLine();
-                Console.WriteLine("");
-                System.Threading.Thread.Sleep(secsPerTick * 1000);
+                Console.WriteLine("");*/
+                //System.Threading.Thread.Sleep(secsPerTick * 1000);
             }
 
             Console.WriteLine("Ending Wealth: " + miner.getCurrentWealth());
